@@ -1,0 +1,87 @@
+---
+title: "Session 1 - Intro to R and RStudio"
+author: "ISM2425"
+date: "05./06.11.2024"
+output: html_document
+---
+
+# Intro to R and RStudio
+
+RStudio is a flexible and multi-functional open-source IDE (integrated development environment) that is extensively used as a graphical front-end to work with R. It has many useful features including
+
+* A user-friendly interface
+* The ability to write and save reusable scripts
+* Easy access to all the imported data and created objects (like variables, functions, etc.)
+* Exhaustive help on any object
+* Code autocompletion
+* The ability to create p
+
+We will have a look at its structure and functionality during the course of this session. For further info, you may want to read the [Introduction to RStudio](https://www.datacamp.com/tutorial/r-studio-tutorial) on Datacamp. 
+
+
+## Set working directory
+
+```{r}
+#setwd("C:/Users/peter/Nextcloud/LEHRE/ISM2324/Tutorial")
+```
+
+* Create a tutorial folder, adapt this code to your computer
+* Note that R wants slashes, not backslashes
+* Download data and code from ILIAS to this folder
+
+
+## Install packages (only once)
+
+```{r, echo=FALSE}
+#install.packages("tidyverse")
+```
+* You need to uncomment the code (I already have `tidyverse` installed)
+* `tidyverse` is a meta package containing several packages inlcuding `dplyr` and `ggplot2`
+* To install more than one package at once, use the combine function `c()`: `install.packages(c("packagename1", "packagename2"))`
+* You can also use the **Packages** tab in the bottom right of the RStudio window
+* To run the command, highlight and press CTRL+Enter (Windows) or CMD+Enter (Mac)
+
+
+## Load packages
+
+```{r}
+library(tidyverse)
+```
+
+* You need to load the required packages anew in each R session
+* No quotation marks, only one package per call
+* In future sessions, we will also use the `pacman` package which is more convenient for package management
+* Type `search()` to get a list of all loaded packages
+
+
+## An alternative - the `pacman`-package
+* there's also an option that combines the `install.packages` and `library` functions -> the `pacman`-package (short for package management)
+* usually you just require the p_load() function from the package, but what's so special about it?
+* p_load() does two things at once: First, it checks if the required package is already installed. If not, it will handle the installation for you. Second, when all the required packages are installed, it will load the packages using `library`.
+* another positive aspect: you may just add as many packages as you want just using a "," (e.g. pacman::p_load(tidyverse, readxl, lubridate, survey))
+
+```{r eval=FALSE, include=FALSE}
+p_load(tidyverse) #this will cause an error
+```
+
+* just the function `p_load` unfortunately isn't enough, you have to specify the package as well. That's possible using ":".
+
+```{r}
+pacman::p_load(tidyverse) # this will work
+```
+
+
+## Get help
+To get help on a package (or function or any other built-in R object), write `help(packagename)` or just `??packagename`. You can also click the **Help** tab in the bottom-right pane!
+
+
+## Load / import data
+Use the `data()` function to load data that is included in any R package that you loaded. Use the `load()` function to load in R format (.Rda). To import data from other formats such as .csv, use the `read_csv`function from the `readr`package (included in `tidyverse`). In RStudio, you can also click File -> Import Dataset -> From text(readr)
+
+
+## Your task:
+* Install and load the `survey`package
+* Load the `election` data contained in that package
+* Use functions `glimpse()`, `dim()`, `head()`, `names()`, `summary()`, and `View()` to inspect the data. What does the data frame contain?
+* Use functions from the `dplyr`package to compute vote proportions for the three candidates
+* Use the generic `hist()` function and the `ggplot()` function to plot the distribution of the vote proportions for G.W. Bush

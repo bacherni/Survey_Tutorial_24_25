@@ -1,0 +1,54 @@
+---
+title: "Markdown intro"
+author: "ISM24/25"
+date: "05./06.11.2024"
+output: html_document
+---
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. This file is based on Garrett Grolemund's [quick intro to R Markdown]([https://rmarkdown.rstudio.com/)[https://rmarkdown.rstudio.com/articles_intro.html].
+
+Consider how authors typically include graphs (or tables, or numbers) in a report. The author makes the graph, saves it as a file, and then copy and pastes it into the final report. This process relies on manual labor. If the data changes, the author must repeat the entire process to update the graph.
+
+In the R Markdown paradigm, each report contains the code it needs to make its own graphs, tables, numbers, etc. The author can automatically update the report by re-knitting. This interactive process is much less prone to error and conducive to reproducibility.
+
+When you click the Knit button in RStudio a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. To do this, R needs the RMarkdown and knitr packages. Both are pre-installed in RStudio.
+
+You can embed an R code chunk like this (`cars` is a data frame included in the base R installation):
+
+```{r}
+summary(cars)
+```
+
+You can also embed plots, for example:
+
+```{r, echo=FALSE}
+plot(cars)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot. This is what you will usually want to have for your final report.
+
+To omit the results from your final report (and not run the code) add the argument `eval = FALSE` inside the brackets and after `r`. This will place a copy of your code into the report.
+
+You may have already encountered markdown without realizing it. These websites all rely on markdown formatting:
+
+* [Github](www.github.com)
+* [StackOverflow](www.stackoverflow.com)
+* [Reddit](www.reddit.com)
+
+By the way, this is how you create lists and hyperlinks. You can use one asterisk to *italize* text. Use two asterisks to have text printed in **bold**. Note that we already used backticks to enclose `inline code`. 
+
+Use one (two, three) hashtag to create  a first- (second-, third-) level header:
+
+# First-level header
+## Second-level header
+### Third-level header
+
+An ordered list can be created like this:
+
+1. First item
+2. Second item
+3. Third item
+
+For further formatting rules, you can access the Markdown quick reference in the Rstudio Help menu. 
+
+To create your own R Markdown report, open a plain text file and save it with the extension .Rmd. You can open a text file in your scripts editor by clicking File > New File > Text file in the RStudio toolbar. You can use the preamble from this file as a template.
