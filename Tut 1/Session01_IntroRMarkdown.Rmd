@@ -1,5 +1,5 @@
 ---
-title: "Markdown intro"
+title: "Markdown Intro"
 author: "ISM24/25"
 date: "05./06.11.2024"
 output: html_document
