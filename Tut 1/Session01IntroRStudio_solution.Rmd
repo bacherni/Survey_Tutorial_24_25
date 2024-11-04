@@ -55,7 +55,6 @@ library(tidyverse)
 
 * You need to load the required packages anew in each R session
 * No quotation marks, only one package per call
-* In future sessions, we will also use the `pacman` package which is more convenient for package management
 * Type `search()` to get a list of all loaded packages
 
 
