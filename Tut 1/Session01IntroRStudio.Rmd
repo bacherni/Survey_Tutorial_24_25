@@ -14,7 +14,7 @@ RStudio is a flexible and multi-functional open-source IDE (integrated developme
 * Easy access to all the imported data and created objects (like variables, functions, etc.)
 * Exhaustive help on any object
 * Code autocompletion
-* The ability to create p
+* The ability to create plots
 
 We will have a look at its structure and functionality during the course of this session. For further info, you may want to read the [Introduction to RStudio](https://www.datacamp.com/tutorial/r-studio-tutorial) on Datacamp. 
 
