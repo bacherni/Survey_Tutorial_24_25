@@ -1,0 +1,293 @@
+---
+title: "Session 2 - Sampling I: SRS, Stratified, and Cluster Sampling"
+author: "ISM2425"
+output: html_document
+---
+  
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Goals
+1. Learn to know the population frame, target variable, and context of the Swiss minaret initiative
+2. Draw simple random samples, stratified samples, and cluster samples using the `sampling` package (Tillé and Matei 2016)
+3. Estimate quantities of interest and their sampling variance using the `survey` package (Lumley 2010)
+
+
+## Preparations
+
+### Clean up your global environment
+```{r}
+rm(list=ls())
+```
+
+
+### Install and load packages
+* `pacman` for package management
+```{r, message=FALSE}
+#  install.packages("pacman")
+```
+
+* `tidyverse`: package for all tidy operations (dplyr, ggplot2, purrr, ...)
+* `sampling`: Tillé and Matei's package for survey sampling
+* `survey`: Lumley's package for analyzing complex surveys
+
+```{r, message=FALSE}
+pacman::p_load(tidyverse,sampling,survey)
+```
+
+### Set working directory
+* Rembember to use slashes and not backslashes!
+
+```{r, message=FALSE}
+setwd('C:/Users/peter/Nextcloud/LEHRE/ISM2324/Tutorial/')
+```
+
+### Load and inspect data
+We are using (synthetic) population data from an initiative on banning the construction of minarets which was held in Switzerland on 2009/11/29 (see https://swissvotes.ch/vote/547.00 for more information). The data set has one row for each of the ~2.7M voters. The variable of interest is `vote` (1 yes, 0 no), the stratum variable is `canton_id`, the cluster variable is `mun_id`. Our aim is to estimate the total number and proportion of yes-votes based on different sampling schemes.   
+
+```{r, message=FALSE}
+load("minaret.RDa")
+head(minaret)
+summary(minaret)
+```
+
+<mark>Your task: Inspect the data, retrieve the number of voters, clusters, and strata 
+
+* Add `voter_id`, number of cantons and municipality, population sizes overall, per canton, and per municipality for later use
+```{r, message=FALSE}
+minaret <- minaret %>% 
+  mutate(voter_id = seq(1, n(), by = 1), N = n(), H = n_distinct(canton_id), M = n_distinct(mun_id)) %>%
+  group_by(canton_id) %>%  mutate(N_h = n()) %>% ungroup() %>%
+  group_by(mun_id) %>%  mutate(N_k = n()) %>% ungroup()
+```
+
+## The sampling package (Tillé and Matei 2016)
+### The most important functions for this lab:
+* `srswor()` draws a simple random sampling without replacement of size n
+```{r, message=FALSE}
+?srswor
+```
+* `inclusionprobabilities()` computes the first-order inclusion probabilities
+* `cluster()` draws cluster samples with equal/unequal probabilities
+* `strata()` draws stratified samples with equal/unequal probabilities
+* `mstage()` implements multistage sampling with equal/unequal probabilities
+* `getdata()` extracts the observed data from a data frame. The function is used after a sample has been drawn
+
+
+## The survey package (Lumley 2010)
+* `svydesign` assigns sampling design information to a data frame containing a sample 
+* There are many associated functions (`svytotal()', svymean()`, `svyvar()`,`svyquantile()` among many others)
+```{r, message=FALSE}
+ls("package:survey")
+```
+
+## Simple random sampling 
+
+* First, fix the starting value to make random number generation replicable.
+```{r, message=FALSE}
+set.seed(333)
+```
+
+* Overall population size
+```{r, message=FALSE}
+N <- nrow(minaret)
+```
+
+* Overall sample size
+```{r, message=FALSE}
+n <- 1000
+```
+
+* Draw a SRS of size $n=1000$ without replacement from our minaret frame.
+```{r, message=FALSE}
+srs_sample <- srswor(n = n, N = N)
+srs_sample <- getdata(data = minaret, m = srs_sample)
+```
+
+* Specify a `svydesign` object.
+```{r, message=FALSE}
+srs_design <- svydesign(ids = ~1, data = srs_sample,
+                        fpc = ~N)
+summary(srs_design)
+```
+
+* Estimate population total of voters who voted in favor of banning the construction of minarets; compare to actual total
+```{r, message=FALSE}
+svytotal(x = ~vote, design = srs_design)
+
+sum(minaret$vote)
+```
+* Confidence interval (default is 95%)
+```{r, message=FALSE}
+confint(svytotal(x = ~vote, design = srs_design))
+```
+
+* Estimate population proportion of voters who voted in favor of banning the construction of minarets; compare to actual proportion
+```{r, message=FALSE}
+svymean(x = ~vote, design = srs_design)
+
+sum(minaret$vote)/length(minaret$vote)
+```
+* Normal approximation to confidence interval as above or `svyciprop` specifically for proportions near 0 or 1. Function uses different methods, see help file. 
+```{r, message=FALSE}
+confint(svymean(x = ~vote, design = srs_design))
+svyciprop(formula = ~I(vote==1), design = srs_design)
+```
+
+
+
+## Stratified random sampling
+
+```{r, message=FALSE}
+vote_by_canton <- minaret %>% 
+  group_by(canton_id) %>% 
+  summarise(p_yes=mean(vote),
+          v_yes=var(vote))
+vote_by_canton
+```
+
+
+* Define the number of strata $H=26$
+```{r, message=FALSE}
+H <- length(unique(minaret$canton_id))
+```
+
+* Draw a stratified sample of size $n = 1000$, equal sample size $n/H$ in each stratum. Attention: the function name `strata` is ambiguous. We therefore need to specify the package.  
+```{r, message=FALSE}
+str_sample_eqn <- sampling::strata(data = minaret, stratanames = "canton_id", 
+                     size = round(rep(n/H, times = H)), method = "srswor")
+str_sample_eqn <- getdata(data = minaret, m = str_sample_eqn)
+``` 
+
+* Specify `svydesign` object
+```{r, message=FALSE}
+str_design_eqn <- svydesign(ids = ~1, strata = ~canton_id, fpc = ~N_h, data = str_sample_eqn) 
+```
+
+* Estimate population share of yes votes, compare to population parameter
+```{r, message=FALSE}
+svymean(~vote, design = str_design_eqn)
+
+sum(minaret$vote)/length(minaret$vote)
+```
+
+* Calculate design effect
+```{r, message=FALSE}
+svymean(~vote, design = str_design_eqn, deff = TRUE)
+```
+
+* Draw a stratified sample of size $n = 1000$ with sample size allocation proportionate to stratum size $n_h = n \frac{N_h}{N}$. We use the `inclusionprobastrata` function which (somewhat redundantly?) requires $n_h$. The method used is systematic sampling. Recall the Kalton (1983) example from the lecture.
+
+* Stratum size in the population
+```{r, message=FALSE}
+N_h <- table(minaret$canton_id)
+```
+
+
+* Population fraction in stratum
+```{r, message=FALSE}
+p_h <- N_h/unique(minaret$N)
+
+pi_str_pps <- inclusionprobastrata(minaret$canton_id,n*p_h)
+
+str_sample_pps <- sampling::strata(data = minaret, stratanames = "canton_id", 
+                     size = n*p_h, pik = pi_str_pps, method = "systematic")
+str_sample_pps <- getdata(data = minaret, m = str_sample_pps)
+``` 
+
+* Specify `svydesign` object
+```{r, message=FALSE}
+str_design_pps <- svydesign(ids = ~1, strata = ~canton_id, fpc = ~N_h, data = str_sample_pps) 
+```
+
+* Estimate population share of yes votes, compare to population parameter, 
+```{r, message=FALSE}
+svymean(~vote, design = str_design_pps, deff = TRUE)
+
+sum(minaret$vote)/length(minaret$vote)
+```
+
+
+## Single-stage cluster sampling
+
+* Our clusters $k$ are the Swiss municipalities.
+
+* Define the number of clusters $M=2144$
+```{r, message=FALSE}
+M <- length(unique(minaret$mun_id))
+```
+
+* Number of clusters to be sampled
+```{r, message=FALSE}
+m <- 50
+```
+
+* Draw cluster sample SRSWOR
+```{r, message=FALSE}
+cls_sample <- sampling::cluster(data=minaret, clustername="mun_id", size=m, method="srswor")
+cls_sample <- getdata(minaret, cls_sample)
+nrow(cls_sample)
+```
+* Define survey design object
+```{r, message=FALSE}
+cls_design <- svydesign(ids = ~mun_id, data = cls_sample,
+                        fpc = ~M)
+summary(cls_design)
+```
+
+* Estimate population share of yes votes, design effect
+```{r, message=FALSE}
+svymean(~vote, design = cls_design, deff = TRUE)
+```
+
+<mark>Your task: Compute and interpret the effective sample size (you can use the `deff()`function from the `survey` package to extract the value of the design effect)
+
+
+
+
+# This is already for next week!
+
+## Two-stage cluster sampling
+
+* Cluster population sizes
+```{r, message=FALSE}
+N_k <- table(minaret$mun_id)
+str(N_k)
+```
+
+* Stage 1 inclusion probabilities proportionate to size (PPS)
+```{r, message=FALSE}
+pi1_tss <- inclusionprobabilities(N_k, m)
+```
+
+* Draw the sample. Note that the second stage is specified as stratified sampling (among the clusters selected at stage 1). Sample sizes are constant at stage 2, $n_k=n/m$.
+```{r, message=FALSE}
+tss_sample <- mstage(data = minaret, stage = list("cluster", "stratified"), 
+                     varnames = list("mun_id", "voter_id"), size = list(size1 = m, size2 = c(round(rep(n/m, m)))), 
+                     method=list("systematic","srswor"), pik = list(pi1_tss))
+tss_sample <- getdata(data = minaret, m = tss_sample)[[2]]
+```
+
+* Append inclusion probabilities to sample data frame
+```{r, message=FALSE}
+tss_sample <- tss_sample %>%
+  mutate(pi1 = inclusionprobabilities(N_k, m), pi2 = n/m/tss_sample$N_k) 
+```
+
+* Inspect the sample
+```{r, message=FALSE}
+View(tss_sample)
+```
+
+* Specify a survey design object, Brewer is a method to approximate (under the assumption of sampling with replacement) second-order or joint inclusion probabilities for elements i and j. This is necessary to calculate the sampling variance of the estimator.
+```{r, message=FALSE}
+tss_design <- svydesign(ids = ~mun_id+voter_id, probs = ~pi1+pi2, pps = 'brewer', data = tss_sample)
+summary(tss_design)
+```
+
+* Estimate population share of yes votes, compare to population parameter, 
+```{r, message=FALSE}
+svymean(~vote, design = tss_design, deff = TRUE)
+sum(minaret$vote)/length(minaret$vote)
+```

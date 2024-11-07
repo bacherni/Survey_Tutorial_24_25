@@ -22,7 +22,7 @@ We will have a look at its structure and functionality during the course of this
 ## Set working directory
 
 ```{r}
-#setwd("C:/Users/peter/Nextcloud/LEHRE/ISM2324/Tutorial")
+setwd("C:/Users/bache/Documents/Studium&Beruf/Uni/Master/1.Semester/Survey Tut/Survey_Tutorial_24_25/Tut 1")
 ```
 
 * Create a tutorial folder, adapt this code to your computer
@@ -33,7 +33,7 @@ We will have a look at its structure and functionality during the course of this
 ## Install packages (only once)
 
 ```{r, echo=FALSE}
-#install.packages("tidyverse")
+install.packages("tidyverse")
 ```
 * You need to uncomment the code (I already have `tidyverse` installed)
 * `tidyverse` is a meta package containing several packages inlcuding `dplyr` and `ggplot2`
@@ -66,7 +66,7 @@ p_load(tidyverse) #this will cause an error
 * just the function `p_load` unfortunately isn't enough, you have to specify the package as well. That's possible using ":".
 
 ```{r}
-pacman::p_load(tidyverse) # this will work
+pacman::p_load(tidyverse, survey, dplyr) # this will work
 ```
 
 
@@ -80,7 +80,36 @@ Use the `data()` function to load data that is included in any R package that yo
 
 ## Your task:
 * Install and load the `survey`package
+
+```{r}
+#install.packages("survey")
+library(survey)
+library(tidyverse)
+```
+
 * Load the `election` data contained in that package
+```{r}
+data("election")
+```
+
 * Use functions `glimpse()`, `dim()`, `head()`, `names()`, `summary()`, and `View()` to inspect the data. What does the data frame contain?
+```{r}
+View(election)
+
+```
+
 * Use functions from the `dplyr`package to compute vote proportions for the three candidates
+
+```{r}
+election <- election %>% 
+  mutate(Bush_perc = Bush / votes,
+         Kerry_perc = Kerry / votes,
+         Nader_perc = Nader / votes)
+```
+
 * Use the generic `hist()` function and the `ggplot()` function to plot the distribution of the vote proportions for G.W. Bush
+
+```{r}
+ggplot(election, aes(x=Bush_perc)) + geom_histogram()
+```
+

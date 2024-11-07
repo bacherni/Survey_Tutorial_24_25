@@ -2,7 +2,7 @@
 title: "Markdown Intro"
 author: "ISM24/25"
 date: "05./06.11.2024"
-output: html_document
+output: pdf_document
 ---
 
 This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. This file is based on Garrett Grolemund's [quick intro to R Markdown]([https://rmarkdown.rstudio.com/)[https://rmarkdown.rstudio.com/articles_intro.html].
@@ -12,6 +12,7 @@ Consider how authors typically include graphs (or tables, or numbers) in a repor
 In the R Markdown paradigm, each report contains the code it needs to make its own graphs, tables, numbers, etc. The author can automatically update the report by re-knitting. This interactive process is much less prone to error and conducive to reproducibility.
 
 When you click the Knit button in RStudio a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. To do this, R needs the RMarkdown and knitr packages. Both are pre-installed in RStudio.
+
 
 You can embed an R code chunk like this (`cars` is a data frame included in the base R installation):
 
