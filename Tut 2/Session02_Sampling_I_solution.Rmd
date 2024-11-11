@@ -1,7 +1,9 @@
 ---
 title: "Session 2 - Sampling I: SRS, Stratified, and Cluster Sampling"
-author: "ISM2425"
-output: html_document
+author: "ISM2324"
+output:
+  pdf_document: default
+  html_document: default
 ---
   
 ```{r setup, include=FALSE}
@@ -23,22 +25,25 @@ rm(list=ls())
 
 
 ### Install and load packages
+* `pacman` for package management
+```{r, message=FALSE}
+#  install.packages("pacman")
+```
 
+* Uncomment if you need to install `pacman`
 * `tidyverse`: package for all tidy operations (dplyr, ggplot2, purrr, ...)
 * `sampling`: Tillé and Matei's package for survey sampling
 * `survey`: Lumley's package for analyzing complex surveys
 
 ```{r, message=FALSE}
-library(tidyverse)
-library(sampling)
-library(survey)
+pacman::p_load(tidyverse,sampling,survey)
 ```
 
-### Set working directory (or just put everything in the same ordner)
-* Rembember to use slashes and not backslashes!
+### Set working directory
+* Remember to use slashes and not backslashes!
 
 ```{r, message=FALSE}
-#setwd('C:/Users/peter/Nextcloud/LEHRE/ISM2324/Tutorial/')
+#setwd('C:/Users/Peter/Nextcloud/LEHRE/ISM2324/Tutorial/')
 ```
 
 ### Load and inspect data
@@ -52,6 +57,12 @@ summary(minaret)
 
 <mark>Your task: Inspect the data, retrieve the number of voters, clusters, and strata 
 
+```{r, message=FALSE}
+dim(minaret)
+length(unique(minaret$canton_id))
+length(unique(minaret$mun_id))
+```
+
 * Add `voter_id`, number of cantons and municipality, population sizes overall, per canton, and per municipality for later use
 ```{r, message=FALSE}
 minaret <- minaret %>% 
@@ -61,12 +72,14 @@ minaret <- minaret %>%
 ```
 
 ## The sampling package (Tillé and Matei 2016)
-### The most important functions for this lab:
-* `srswor()` draws a simple random sampling without replacement of size n
+
 ```{r, message=FALSE}
-#?srswor
+ls("package:sampling")
 ```
+### The most important functions for this session:
+* `srswor()` draws a simple random sampling without replacement of size n
 * `inclusionprobabilities()` computes the first-order inclusion probabilities
+* `inclusionprobastrata()` computes inclusion probabilities for stratified samples
 * `cluster()` draws cluster samples with equal/unequal probabilities
 * `strata()` draws stratified samples with equal/unequal probabilities
 * `mstage()` implements multistage sampling with equal/unequal probabilities
@@ -74,17 +87,18 @@ minaret <- minaret %>%
 
 
 ## The survey package (Lumley 2010)
-* `svydesign` assigns sampling design information to a data frame containing a sample 
-* There are many associated functions (`svytotal()', svymean()`, `svyvar()`,`svyquantile()` among many others)
 ```{r, message=FALSE}
 ls("package:survey")
 ```
+### The most important functions:
+* `svydesign` assigns sampling design information to a data frame containing a sample 
+* There are many associated functions (`svytotal()', svymean()`, `svyvar()`,`svyquantile()` among many others)
 
 ## Simple random sampling 
 
 * First, fix the starting value to make random number generation replicable.
 ```{r, message=FALSE}
-set.seed(333)
+set.seed(123)
 ```
 
 * Overall population size
@@ -136,6 +150,8 @@ svyciprop(formula = ~I(vote==1), design = srs_design)
 
 
 ## Stratified random sampling
+
+<mark>Your task: Use the `group_by()` and `summarise()` functions to display the proportions of Yes votes by canton
 
 ```{r, message=FALSE}
 vote_by_canton <- minaret %>% 
@@ -240,8 +256,12 @@ svymean(~vote, design = cls_design, deff = TRUE)
 ```
 
 <mark>Your task: Compute and interpret the effective sample size (you can use the `deff()`function from the `survey` package to extract the value of the design effect)
-
-
+```{r, message=FALSE}
+phat_cls <- svymean(~vote, design = cls_design, deff = TRUE)
+nrow(cls_sample)
+deff(phat_cls)
+nrow(cls_sample)/deff(phat_cls)
+```
 
 
 # This is already for next week!
