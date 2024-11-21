@@ -32,6 +32,8 @@ rm(list=ls())
 library(tidyverse)
 library(sampling)
 library(survey)
+
+
 ```
 
 ### Set working directory (or just put everything in the same ordner)
@@ -55,7 +57,9 @@ summary(minaret)
 * Add `voter_id`, number of cantons and municipality, population sizes overall, per canton, and per municipality for later use
 ```{r, message=FALSE}
 minaret <- minaret %>% 
-  mutate(voter_id = seq(1, n(), by = 1), N = n(), H = n_distinct(canton_id), M = n_distinct(mun_id)) %>%
+  mutate(voter_id = seq(1, n(), by = 1), 
+         N = n(), H = n_distinct(canton_id), 
+         M = n_distinct(mun_id)) %>%
   group_by(canton_id) %>%  mutate(N_h = n()) %>% ungroup() %>%
   group_by(mun_id) %>%  mutate(N_k = n()) %>% ungroup()
 ```
@@ -84,7 +88,7 @@ ls("package:survey")
 
 * First, fix the starting value to make random number generation replicable.
 ```{r, message=FALSE}
-set.seed(333)
+set.seed(20112024)
 ```
 
 * Overall population size
@@ -105,8 +109,7 @@ srs_sample <- getdata(data = minaret, m = srs_sample)
 
 * Specify a `svydesign` object.
 ```{r, message=FALSE}
-srs_design <- svydesign(ids = ~1, data = srs_sample,
-                        fpc = ~N)
+srs_design <- svydesign(ids = ~1, data = srs_sample, fpc = ~N)
 summary(srs_design)
 ```
 
@@ -149,18 +152,23 @@ vote_by_canton
 * Define the number of strata $H=26$
 ```{r, message=FALSE}
 H <- length(unique(minaret$canton_id))
+H
 ```
 
 * Draw a stratified sample of size $n = 1000$, equal sample size $n/H$ in each stratum. Attention: the function name `strata` is ambiguous. We therefore need to specify the package.  
 ```{r, message=FALSE}
-str_sample_eqn <- sampling::strata(data = minaret, stratanames = "canton_id", 
-                     size = round(rep(n/H, times = H)), method = "srswor")
+str_sample_eqn <- sampling::strata(data = minaret, 
+                                   stratanames = "canton_id", 
+                                   size = round(rep(n/H, times = H)), method = "srswor")
+
 str_sample_eqn <- getdata(data = minaret, m = str_sample_eqn)
+
+
 ``` 
 
 * Specify `svydesign` object
 ```{r, message=FALSE}
-str_design_eqn <- svydesign(ids = ~1, strata = ~canton_id, fpc = ~N_h, data = str_sample_eqn) 
+str_design_eqn <- svydesign(ids = ~1, strata = ~canton_id, fpc = ~N_h, data =str_sample_eqn) 
 ```
 
 * Estimate population share of yes votes, compare to population parameter
@@ -180,18 +188,23 @@ svymean(~vote, design = str_design_eqn, deff = TRUE)
 * Stratum size in the population
 ```{r, message=FALSE}
 N_h <- table(minaret$canton_id)
+view(N_h)
 ```
 
 
 * Population fraction in stratum
 ```{r, message=FALSE}
 p_h <- N_h/unique(minaret$N)
+view(p_h)
 
 pi_str_pps <- inclusionprobastrata(minaret$canton_id,n*p_h)
+view(pi_str_pps)
 
 str_sample_pps <- sampling::strata(data = minaret, stratanames = "canton_id", 
                      size = n*p_h, pik = pi_str_pps, method = "systematic")
+
 str_sample_pps <- getdata(data = minaret, m = str_sample_pps)
+view(str_sample_pps)
 ``` 
 
 * Specify `svydesign` object
@@ -214,6 +227,7 @@ sum(minaret$vote)/length(minaret$vote)
 * Define the number of clusters $M=2144$
 ```{r, message=FALSE}
 M <- length(unique(minaret$mun_id))
+M
 ```
 
 * Number of clusters to be sampled
@@ -225,6 +239,7 @@ m <- 50
 ```{r, message=FALSE}
 cls_sample <- sampling::cluster(data=minaret, clustername="mun_id", size=m, method="srswor")
 cls_sample <- getdata(minaret, cls_sample)
+
 nrow(cls_sample)
 ```
 * Define survey design object
@@ -242,28 +257,31 @@ svymean(~vote, design = cls_design, deff = TRUE)
 <mark>Your task: Compute and interpret the effective sample size (you can use the `deff()`function from the `survey` package to extract the value of the design effect)
 
 
-
-
-# This is already for next week!
-
 ## Two-stage cluster sampling
 
+*Now, we want to draw a two-staged sample of the size 1000, selecting 50 clusters(municipalities) and then, within each sampled cluster randomly select 20 respondents. 
+
 * Cluster population sizes
+
 ```{r, message=FALSE}
 N_k <- table(minaret$mun_id)
-str(N_k)
 ```
 
 * Stage 1 inclusion probabilities proportionate to size (PPS)
 ```{r, message=FALSE}
 pi1_tss <- inclusionprobabilities(N_k, m)
+
 ```
 
 * Draw the sample. Note that the second stage is specified as stratified sampling (among the clusters selected at stage 1). Sample sizes are constant at stage 2, $n_k=n/m$.
 ```{r, message=FALSE}
-tss_sample <- mstage(data = minaret, stage = list("cluster", "stratified"), 
-                     varnames = list("mun_id", "voter_id"), size = list(size1 = m, size2 = c(round(rep(n/m, m)))), 
-                     method=list("systematic","srswor"), pik = list(pi1_tss))
+tss_sample <- sampling::mstage(data = minaret,
+                     stage = list("cluster","stratified"), 
+                     varnames = list("mun_id", "voter_id"), 
+                     size = list(size1 = m, size2 = c(round(rep(n/m, m)))), 
+                     method=list("systematic","srswor"), 
+                     pik = list(pi1_tss))
+
 tss_sample <- getdata(data = minaret, m = tss_sample)[[2]]
 ```
 
@@ -279,6 +297,7 @@ View(tss_sample)
 ```
 
 * Specify a survey design object, Brewer is a method to approximate (under the assumption of sampling with replacement) second-order or joint inclusion probabilities for elements i and j. This is necessary to calculate the sampling variance of the estimator.
+
 ```{r, message=FALSE}
 tss_design <- svydesign(ids = ~mun_id+voter_id, probs = ~pi1+pi2, pps = 'brewer', data = tss_sample)
 summary(tss_design)
@@ -287,5 +306,13 @@ summary(tss_design)
 * Estimate population share of yes votes, compare to population parameter, 
 ```{r, message=FALSE}
 svymean(~vote, design = tss_design, deff = TRUE)
+
 sum(minaret$vote)/length(minaret$vote)
+
+svymean(~vote, design = cls_design, deff = TRUE)
+svymean(~vote, design = str_design_eqn, deff = TRUE)
+svymean(~vote, design = str_design_pps, deff = TRUE)
+svymean(~vote, design = srs_design, deff = TRUE)
+
+
 ```

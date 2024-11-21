@@ -258,8 +258,11 @@ svymean(~vote, design = cls_design, deff = TRUE)
 <mark>Your task: Compute and interpret the effective sample size (you can use the `deff()`function from the `survey` package to extract the value of the design effect)
 ```{r, message=FALSE}
 phat_cls <- svymean(~vote, design = cls_design, deff = TRUE)
+
 nrow(cls_sample)
+
 deff(phat_cls)
+
 nrow(cls_sample)/deff(phat_cls)
 ```
 
@@ -271,12 +274,13 @@ nrow(cls_sample)/deff(phat_cls)
 * Cluster population sizes
 ```{r, message=FALSE}
 N_k <- table(minaret$mun_id)
-str(N_k)
+view(N_k)
 ```
 
 * Stage 1 inclusion probabilities proportionate to size (PPS)
 ```{r, message=FALSE}
 pi1_tss <- inclusionprobabilities(N_k, m)
+view(pi1_tss)
 ```
 
 * Draw the sample. Note that the second stage is specified as stratified sampling (among the clusters selected at stage 1). Sample sizes are constant at stage 2, $n_k=n/m$.
