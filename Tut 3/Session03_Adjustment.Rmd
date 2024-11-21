@@ -1,0 +1,199 @@
+---
+title: "Session 3 - Nonresponse adjustments: poststratification and raking"
+author: "ISM2425"
+output:
+  html_document: default
+  pdf_document: default
+---
+  
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+```
+
+## Goals
+1. Learn to know the survey data and context from Selb, Goebel and Lachat (2021)
+2. Learn how to implement poststratification and raking using the `postStratify()`and `rake` functions from the survey package
+
+## Preparations
+
+### Clean up your global environment
+```{r}
+rm(list=ls())
+```
+
+
+### Install and load packages
+```{r, message=FALSE}
+pacman::p_load(tidyverse,survey)
+```
+
+
+### Set working directory
+```{r, message=TRUE}
+#setwd("C:/Users/peter/Nextcloud/LEHRE/ISM2324/Tutorial")
+```
+
+## Background
+We are using data from an exit poll that Sascha Goebel, Romain Lachat and I conducted on the occasion of the first round of the 2017 French presidential election on April 23. We sent out student interviewers to $M=20$ (out of approximately 65,000) polling places which were selected with inclusion probabilities proportional to their size (PPS). We sampled repeatedly to find a sample of polling places that closely reflected the result of the previous presidential election in 2012 (rejective sampling). On site, we set sampling intervals so as to achieve more or less equally sized voter samples with $n \approx 55$. We surveyed the voters' age group, gender, and candidate choice in round 1. We also let them rate all the candidates on scales from 1 (very low sympathy) to 7 (very high sympathy). To predict the runoff on May 7, we then redistributed the votes for first-round candidates other than Macron and Le Pen according to their ratings of the two runoff candidates. We assumed that voters with ratings tied between the two would abstain in round 2.
+
+As to unit and item nonresponses, we deleted respondents who didn't indicate their first-round candidate choice. We then reweighted the sample so that the respondents' candidate choices reflected the official first-round result. We then imputed missing candidate ratings using multiple imputation with chained equation, an iterative imputation algorithm due to White, Royston & Wood (2011). Covariates included the remaining candidate ratings, age group, gender, and polling place (no interactions).  
+
+We have uploaded the published paper and online supplementary materials on ILIAS. 
+
+
+### Load and inspect data
+```{r, message=FALSE}
+load("FPEsurvey.rda")
+
+summary(resp_data)
+```
+
+Note that there is substantive item NR on several variables. Most importantly for this session, 149 respondents failed to indicate their candidate `choice` in round 1.
+
+### Data cleaning
+Assign value labels / candidate names (check candidate order in questionnaire!), transform to factors:
+```{r, message=FALSE}
+cand_names <- c("Arthaud","Poutou","Melenchon","Hamon","Macron","Fillon","Dupont-Aignon","Le Pen","Cheminade","Asselineau","Lassalle")
+
+age_groups <- c("18-24","25-34","35-44","45-54","55-64","65-74",">75")
+
+resp_data <- resp_data %>% mutate(choice = factor(choice, levels = seq(1,11,1), labels = cand_names), age = factor(age, levels = seq(1,7,1), labels = age_groups), sex = recode_factor(sex, `1` = "female", `2` = "male"))
+```
+
+Transform Don't knows (0) on candidate rating variables to NAs
+```{r, message=FALSE}
+resp_data <- resp_data %>%
+  mutate_at(vars(Arthaud:Lassalle), ~na_if(., 0))
+```
+
+Drop the 149 respondents which did not indicate whom they voted for in round 1; they are of no use for poststratification and raking. 
+```{r, message=FALSE}
+resp_data <- resp_data %>%
+  filter(!is.na(choice))
+
+summary(resp_data)
+```
+
+### Specify a survey design object
+```{r, message=FALSE}
+multi_design <- svydesign(id = ~id + resp_id, probs = ~first_stage + second_stage, data = resp_data)
+
+summary(multi_design)
+```
+
+Note that the voters' inclusion probability is constant; this is a self-weighting sample!
+
+### Estimate the first-round vote totals and shares
+```{r, message=FALSE}
+svytotal(~choice, multi_design)
+
+svymean(~choice, multi_design)
+```
+
+This is wide off the mark, see the [official results](https://en.wikipedia.org/wiki/2017_French_presidential_election#First_round_2). Look at Melenchon and Le Pen!
+
+<mark>Your task: There seems to be a serious nonresponse issue. Who do you think was unwilling to talk to our student interviewers and why?
+
+
+## Poststratification
+Recall that our ultimate goal is to predict the runoff between Macron and Le Pen, so surveying first-round choices is only an intermediate step. We now poststratify our voter's choices to official results. The `postStratify()` function requires a data frame with the true population totals for each of the categories of the poststratification variable(s):
+
+```{r, message=FALSE}
+cand_totals <- data.frame(choice = cand_names, totals = c(232384,394505,7059951,2291288,8656346,7212995,1695000,7678491,65586,332547,435301))
+
+cand_totals
+```
+
+Now we can update the design object using `postStratify()` and the data frame we have just built:
+
+```{r, message=FALSE}
+post_design <- postStratify(design = multi_design, strata = ~choice, population = cand_totals)   
+
+summary(post_design)
+```
+
+Now let's see what happens if we estimate (well...) the distribution of the first-round vote:
+
+```{r, message=FALSE}
+post_design <- postStratify(design = multi_design, strata = ~choice, population = cand_totals)   
+
+summary(post_design)
+
+svytotal(~choice, post_design)
+```
+
+Note that there is no sampling variance; the (post)stratum sizes are known!
+
+
+### Redistribution of votes for eliminated candidates
+In our first try to redistribute the votes for eliminated candidates, we make several simplifying assumptions: 
+* Round-one votes for Macron and Le Pen remain stable
+* Those who voted for another candidate in round 1 will vote for the higher-rated among the runoff candidates
+* Those with tied (or missing) ratings among the runoff candidates will abstain
+
+```{r, message=FALSE}
+resp_data <- resp_data %>%
+  mutate(
+    runoff = case_when(
+      choice == "Macron" ~ "Macron",
+      choice == "Le Pen" ~ "Le Pen",
+      Macron > LePen ~ "Macron",
+      LePen > Macron ~ "Le Pen",
+      TRUE ~ NA_character_
+    )
+  )
+```
+
+<mark>Your task: How many NAs do we have on the `runoff` variable?
+
+```{r, message=FALSE}
+sum(is.na(resp_data$runoff))
+```
+
+We need to somehow include the new runoff variable in the `svydesign` object. This can be done using the `update()` function, but then we would need to specify the new variable within the function call. We simply define the whole design objects once again.
+
+```{r, message=FALSE}
+multi_design <- svydesign(id = ~id + resp_id, ~first_stage + second_stage, data = resp_data)
+
+post_design <- postStratify(design = multi_design, strata = ~choice, population = cand_totals)
+
+svymean(~runoff, multi_design, na.rm=T)
+svytotal(~runoff, multi_design, na.rm=T)
+svymean(~runoff, post_design, na.rm=T)
+svytotal(~runoff, post_design, na.rm=T)
+```
+
+The predicted vote shares are already close to the actual result, but we are heavily underestimating totals (i.e.,overestimating abstention / NAs). Possibly, voters undecided between Macron and Le Pen in round 1 made up their mind between election rounds? Can we emulate this learning process with imputation? This is what we will do next week.
+
+
+## Raking by first-round choice and gender
+There is a pronounced gender imbalance in the sample: 
+```{r, message = FALSE}
+prop.table(table(resp_data$sex))
+```
+
+I could not find official figures, but I guess this is due to differential nonresponse rather than unequal electoral participation. Let's assume that half of the first-round voters were female to demonstrate how to use the `rake()` function works. We need to get rid of the NAs on the `sex`variable first (and then have to specify a `svydesign` object without those respondents).
+
+```{r, message = FALSE}
+resp_data <- resp_data %>%
+  filter(!is.na(sex))
+```
+
+```{r, message = FALSE}
+sum(cand_totals$totals)/2
+```
+
+```{r, message = FALSE}
+sex_totals <- data.frame(sex = c("female", "male"), totals = c(18027197,18027197))
+
+multi_design2 <- svydesign(id = ~id + resp_id, probs = ~first_stage + second_stage, data = resp_data)
+
+rake_design <- rake(multi_design2, list(~ choice, ~sex), list(cand_totals, sex_totals))
+
+summary(rake_design)
+
+svymean(~runoff, rake_design, na.rm=T)
+svytotal(~runoff, rake_design, na.rm=T)
+```
+The inclusion of gender didn't improve the forecast

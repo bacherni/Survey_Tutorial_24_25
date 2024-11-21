@@ -7,6 +7,12 @@ output:
   word_document: default
 ---
 
+
+```{r}
+library(tidyverse)#
+library(survey)
+```
+
 # Intro to R and RStudio
 
 RStudio is a flexible and multi-functional open-source IDE (integrated development environment) that is extensively used as a graphical front-end to work with R. It has many useful features including
@@ -26,6 +32,8 @@ We will have a look at its structure and functionality during the course of this
 ```{r, echo=FALSE}
 #setwd("C:/Users/peter/Nextcloud/LEHRE/ISM2324/Tutorial")
 ```
+
+
 
 * Create a tutorial folder, adapt this code to your computer
 * Note that R wants slashes, not backslashes
@@ -50,7 +58,7 @@ We will have a look at its structure and functionality during the course of this
 ## Load packages
 
 ```{r}
-library(tidyverse)
+#library(tidyverse)
 ```
 
 * You need to load the required packages anew in each R session
@@ -90,6 +98,7 @@ Use the `data()` function to load data that is included in any R package that yo
 * Use functions from the `dplyr`package to compute vote proportions for the three candidates
 * Use the generic `hist()` function and the `ggplot()` function to plot the distribution of the vote proportions for G.W. Bush
 
+
 ## Sample solution
 
 ```{r}
@@ -97,13 +106,15 @@ Use the `data()` function to load data that is included in any R package that yo
 library(survey)
 data(election)
 
+#mutate(data=election, bush_prop = ....)
+
 election <- election %>%
   mutate(bush_prop = Bush / votes,
          kerry_prop = Kerry / votes,
          nader_prop = Nader / votes)
 
-hist(election$bush_prop)
-         
+hist(election$kerry_prop)
+
 ggplot(election, aes(x = bush_prop)) +
   geom_histogram()
 

@@ -1,6 +1,6 @@
 ---
 title: 'Homework Assignment I: Survey Sampling'
-author: "Enter your group name (Peter, Niklas, Jonas)"
+author: "Enter your group name (Niklas, Jonas)"
 date: "Enter submission date"
 output:
   pdf_document: default
