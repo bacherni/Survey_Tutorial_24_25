@@ -29,13 +29,8 @@ pacman::p_load(tidyverse,survey)
 ```
 
 
-### Set working directory
-```{r, message=TRUE}
-#setwd("C:/Users/peter/Nextcloud/LEHRE/ISM2324/Tutorial")
-```
-
 ## Background
-We are using data from an exit poll that Sascha Goebel, Romain Lachat and I conducted on the occasion of the first round of the 2017 French presidential election on April 23. We sent out student interviewers to $M=20$ (out of approximately 65,000) polling places which were selected with inclusion probabilities proportional to their size (PPS). We sampled repeatedly to find a sample of polling places that closely reflected the result of the previous presidential election in 2012 (rejective sampling). On site, we set sampling intervals so as to achieve more or less equally sized voter samples with $n \approx 55$. We surveyed the voters' age group, gender, and candidate choice in round 1. We also let them rate all the candidates on scales from 1 (very low sympathy) to 7 (very high sympathy). To predict the runoff on May 7, we then redistributed the votes for first-round candidates other than Macron and Le Pen according to their ratings of the two runoff candidates. We assumed that voters with ratings tied between the two would abstain in round 2.
+We are using data from an exit poll that Sascha Goebel, Romain Lachat and Peter Selb conducted on the occasion of the first round of the 2017 French presidential election on April 23. We sent out student interviewers to $M=20$ (out of approximately 65,000) polling places which were selected with inclusion probabilities proportional to their size (PPS). We sampled repeatedly to find a sample of polling places that closely reflected the result of the previous presidential election in 2012 (rejective sampling). On site, we set sampling intervals so as to achieve more or less equally sized voter samples with $n \approx 55$. We surveyed the voters' age group, gender, and candidate choice in round 1. We also let them rate all the candidates on scales from 1 (very low sympathy) to 7 (very high sympathy). To predict the runoff on May 7, we then redistributed the votes for first-round candidates other than Macron and Le Pen according to their ratings of the two runoff candidates. We assumed that voters with ratings tied between the two would abstain in round 2.
 
 As to unit and item nonresponses, we deleted respondents who didn't indicate their first-round candidate choice. We then reweighted the sample so that the respondents' candidate choices reflected the official first-round result. We then imputed missing candidate ratings using multiple imputation with chained equation, an iterative imputation algorithm due to White, Royston & Wood (2011). Covariates included the remaining candidate ratings, age group, gender, and polling place (no interactions).  
 
@@ -58,7 +53,8 @@ cand_names <- c("Arthaud","Poutou","Melenchon","Hamon","Macron","Fillon","Dupont
 
 age_groups <- c("18-24","25-34","35-44","45-54","55-64","65-74",">75")
 
-resp_data <- resp_data %>% mutate(choice = factor(choice, levels = seq(1,11,1), labels = cand_names), age = factor(age, levels = seq(1,7,1), labels = age_groups), sex = recode_factor(sex, `1` = "female", `2` = "male"))
+resp_data <- resp_data %>% 
+  mutate(choice = factor(choice, levels = seq(1,11,1), labels = cand_names), age = factor(age, levels = seq(1,7,1), labels = age_groups), sex = recode_factor(sex, `1` = "female", `2` = "male"))
 ```
 
 Transform Don't knows (0) on candidate rating variables to NAs
