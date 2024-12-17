@@ -178,9 +178,7 @@ imp_post_totals <- list()
 for (i in seq(imps$m)) {
   imp_post_designs[[i]] <- postStratify(imp_designs$designs[[i]], strata = ~choice, population = cand_totals)
   imp_post_shares[[i]] <- svymean(~runoff, imp_post_designs[[i]], na.rm = TRUE)
-  imp_post_totals[[i]] <- svytotal(~runoff, imp_post_designs[[i]], na.rm = TRUE)
-
-}
+  imp_post_totals[[i]] <- svytotal(~runoff, imp_post_designs[[i]], na.rm = TRUE)}
 
 summary(MIcombine(imp_post_shares))
 summary(MIcombine(imp_post_totals))
