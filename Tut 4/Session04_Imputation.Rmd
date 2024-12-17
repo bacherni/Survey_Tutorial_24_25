@@ -71,7 +71,7 @@ sum(is.na(resp_data$runoff))/nrow(resp_data)
 ```
 
 ### Install and load packages
-```{r, message=FALSE}
+```{r, message=FALSE, warning=False}
 pacman::p_load(VIM,mitools,mice)
 ```
 
@@ -93,11 +93,13 @@ Recall from the lecture:
 - Regress incomplete y on complete x
 - Impute linear predictor, xbhat, plus random draw from the residual distribution, N(0,shat2_e)
 - Problems: incomplete x, imputation uncertainty?
+
 3. Iterated imputation
 - Impute missing x by random draws from N(xbar,shat2_x), stochastically impute y
 - Unplug imputed values from x, use imputed y to impute x
 - Unplug imputed y, use updated imputed x to impute y etc.
 - Problems: imputation uncertainty
+
 4. Multiple imputation
 - Repeat iterated imputation m times
 - Perform analysis with m data sets
