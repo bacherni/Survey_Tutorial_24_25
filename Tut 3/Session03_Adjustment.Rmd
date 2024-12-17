@@ -29,6 +29,7 @@ pacman::p_load(tidyverse,survey)
 ```
 
 
+
 ## Background
 We are using data from an exit poll that Sascha Goebel, Romain Lachat and Peter Selb conducted on the occasion of the first round of the 2017 French presidential election on April 23. We sent out student interviewers to $M=20$ (out of approximately 65,000) polling places which were selected with inclusion probabilities proportional to their size (PPS). We sampled repeatedly to find a sample of polling places that closely reflected the result of the previous presidential election in 2012 (rejective sampling). On site, we set sampling intervals so as to achieve more or less equally sized voter samples with $n \approx 55$. We surveyed the voters' age group, gender, and candidate choice in round 1. We also let them rate all the candidates on scales from 1 (very low sympathy) to 7 (very high sympathy). To predict the runoff on May 7, we then redistributed the votes for first-round candidates other than Macron and Le Pen according to their ratings of the two runoff candidates. We assumed that voters with ratings tied between the two would abstain in round 2.
 
@@ -112,10 +113,6 @@ summary(post_design)
 Now let's see what happens if we estimate (well...) the distribution of the first-round vote:
 
 ```{r, message=FALSE}
-post_design <- postStratify(design = multi_design, strata = ~choice, population = cand_totals)   
-
-summary(post_design)
-
 svytotal(~choice, post_design)
 ```
 
@@ -154,8 +151,10 @@ multi_design <- svydesign(id = ~id + resp_id, ~first_stage + second_stage, data 
 
 post_design <- postStratify(design = multi_design, strata = ~choice, population = cand_totals)
 
+print("Alt")
 svymean(~runoff, multi_design, na.rm=T)
 svytotal(~runoff, multi_design, na.rm=T)
+print("Neu")
 svymean(~runoff, post_design, na.rm=T)
 svytotal(~runoff, post_design, na.rm=T)
 ```
@@ -187,7 +186,7 @@ multi_design2 <- svydesign(id = ~id + resp_id, probs = ~first_stage + second_sta
 
 rake_design <- rake(multi_design2, list(~ choice, ~sex), list(cand_totals, sex_totals))
 
-summary(rake_design)
+#summary(rake_design)
 
 svymean(~runoff, rake_design, na.rm=T)
 svytotal(~runoff, rake_design, na.rm=T)
