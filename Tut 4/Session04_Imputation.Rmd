@@ -145,9 +145,9 @@ for (i in seq(imps$m)) {
   
   imp_data$imputations[[i]]$runoff[!is.na(imp_data$imputations[[i]]$Macron)&!is.na(imp_data$imputations[[i]]$LePen)&imp_data$imputations[[i]]$Macron < imp_data$imputations[[i]]$LePen] <- 2
   
-  imp_data$imputations[[i]]$runoff <- factor(imp_data$imputations[[i]]$runoff, levels = c(1,2), labels = c("Macron","Le Pen"))
-}
+  imp_data$imputations[[i]]$runoff <- factor(imp_data$imputations[[i]]$runoff, levels = c(1,2), labels = c("Macron","Le Pen"))}
 ```
+
 This code iterates through each imputed dataset indexed by `i` in the sequence of `imps$m`.
 1. For first-round voters of Macron or Le Pen, it assigns numeric values to the runoff variable based on the choice variable. If choice is "Macron", runoff is set to 1; if choice is "Le Pen", runoff is set to 2; otherwise, it's set to NA.
 2. For voters of eliminated candidates, it refines the runoff variable based on conditions related to Macron and LePen variables within each imputed dataset. If Macron and LePen are not missing and Macron is greater than LePen, runoff is set to 1. If Macron and LePen are not missing and Macron is less than LePen, runoff is set to 2.

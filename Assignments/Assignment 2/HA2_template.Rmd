@@ -1,0 +1,38 @@
+---
+title: 'Homework Assignment II: Survey adjustments'
+author: "Enter your group name (Niklas,Jonas)"
+date: "Enter submission date"
+output:
+  html_document: default
+  pdf_document: default
+subtitle: Enter your student ID
+---
+
+Please write up your answers, code, and results using this Markdown file as a template. Save the file as `HA2_yourstudentID.Rmd`. When everything works properly, knit the final version to html format and submit both Rmd and html files to the submission folder Homework 2 which you can find on ILIAS. 
+
+The deadline for submission is 27.01.2025, 23:55.
+
+In our application using the `FPEsurvey` data, we observed that our sample underrepresented voters of Le Pen and other right-wing candidates, while it overrepresented Mélenchon voters. We poststratified candidate `choice` to actual first-round election results in order to predict the 2017 runoff between Macron and Le Pen. Poststratification dramatically improved our prediction of the runoff. Unfortunately, such powerful poststratification information is rarely available. More often than not, we have to make do with standard sociodemographic information. In this assignment, we will see how far we get when we poststratify by sociodemographics, particularly age and gender. The distribution of the first-round electorate by age group and gender is taken from the Enquête sur la participation électorale (EPE) 2017, the equivalent to the Repräsentative Wahlstatistik in Germany (note: make sure that you have downloaded the data in `age_sex_totals.rds` to your working directory.):
+
+```{r, message=FALSE}
+age_sex_totals <- readRDS("age_sex_totals.rds")
+age_sex_totals
+```
+
+Note that the total number of first-round voters here is lower than the official figures (35,084,850 versus 36,054,394). It is not fully clear to me where this discrepancy comes from (the EPE is also sample based). In any case, in what follows, we will look at proportions rather than totals. 
+
+You can earn one credit per bullet point 1-6. The maximum number of credits is 6. Grading key: 6 credits $\rightarrow$ grade 1, 5 credits $\rightarrow 2$, 4 credits $\rightarrow 3$, 3 credits $\rightarrow 4$, 2 or 1 credits $\rightarrow 5$. You can earn a bonus point for proper data handling under bullet point 0. 
+
+0. Preparations: load necessary packages (`tidyverse`, `survey`), set working directory, load the data (`FPEsurvey.rda`), clean the data as we did in the tutorial, specify the `multi_design` object.
+
+1. Estimate the shares of voters in the 14 poststratification cells defined by gender and age group using the `multi_design`object (hint: you may use `svytable()` from the survey package to estimate totals; you can either set the argument `Ntotals` to 1 or use the function `proportions()` to get the shares). 
+
+2. Compare the results to the population figures above. Which groups are overrepresented in our survey, which are underrepresented?
+
+3. Poststratify the sample by age and gender (hint: you need to get rid of the NAs on the `age` and `sex`variables first, then specify the `multi_design` object again, then poststratify).
+
+4. Now use the poststratified design to estimate the first-round vote shares. 
+
+5. Compare this with the official results and our initial estimates using the `multi_design`object. Did poststratifying by age and sex improve our estimates?
+
+6. Poststratification might fail because the covariates are weakly linked to either survey participation or the survey variable of interest. Are there any notable age and / or gender differences in first-round candidate choice? Use the `svytable()` function and the `multi_design` object to look at choices by age group and gender separately.
