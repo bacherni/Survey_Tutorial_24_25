@@ -1,0 +1,121 @@
+---
+title: 'Homework Assignment II: Survey adjustments'
+author: "Enter your group name (Peter, Robin, Theresa)"
+date: "Enter submission date"
+output:
+  pdf_document: default
+  html_document: default
+subtitle: Enter your student ID
+---
+
+Please write up your answers, code, and results using this Markdown file as a template. Save the file as `HA2_yourstudentID.Rmd`. When everything works properly, knit the final version to html format and submit both Rmd and html files to the submission folder Homework 2 which you can find on ILIAS. 
+
+The deadline for submission is 29.01.2024, 23:55.
+
+In our application using the `FPEsurvey` data, we observed that our sample underrepresented voters of Le Pen and other right-wing candidates, while it overrepresented Mélenchon voters. We poststratified candidate `choice` to actual first-round election results in order to predict the 2017 runoff between Macron and Le Pen. Poststratification dramatically improved our prediction of the runoff. Unfortunately, such powerful poststratification information is rarely available. More often than not, we have to make do with standard sociodemographic information. In this assignment, we will see how far we get when we poststratify by sociodemographics, particularly age and gender. The distribution of the first-round electorate by age group and gender is taken from the Enquête sur la participation électorale 2017, the equivalent to the Repräsentative Wahlstatistik in Germany (note: make sure that you have downloaded the data in `age_sex_totals.rds` to your working directory.):
+
+```{r, message=FALSE}
+age_sex_totals <- readRDS("age_sex_totals.rds")
+age_sex_totals
+```
+
+Note that the total number of first-round voters here is lower than the official figures (35,084,850 versus 36,054,394). It is not fully clear to me where this discrepancy comes from. In any case, in what follows, we will look at proportions rather than totals. 
+
+You can earn one credit per bullet point. The maximum number of credits is 6. Grading key: 6 credits $\rightarrow$ grade 1, 5 credits $\rightarrow 2$, 4 credits $\rightarrow 3$, 3 credits $\rightarrow 4$, 2 or 1 credits $\rightarrow 5$. You will get one extra credit for correct Markdown syntax, package, and data handling (bullet 0.). 
+
+0. Preparations: load necessary packages (`tidyverse`, `survey`), set working directory, load the data (`FPEsurvey.rda`), clean the data as we did in the tutorial, specify the `multi_design` object.
+
+### Load packages, set working directory
+```{r, message=FALSE}
+pacman::p_load(tidyverse,survey)
+setwd("C:/Users/peter/Nextcloud/LEHRE/ISM2324/Tutorial")
+```
+
+### Load and data
+```{r, message=FALSE}
+load("FPEsurvey.rda")
+```
+
+### Data cleaning
+Assign value labels / candidate names (check candidate order in questionnaire!), transform to factors:
+```{r, message=FALSE}
+cand_names <- c("Arthaud","Poutou","Melenchon","Hamon","Macron","Fillon","Dupont-Aignon","Le Pen","Cheminade","Asselineau","Lassalle")
+
+age_groups <- c("18-24","25-34","35-44","45-54","55-64","65-74",">75")
+
+resp_data <- resp_data %>% mutate(choice = factor(choice, levels = seq(1,11,1), labels = cand_names), age = factor(age, levels = seq(1,7,1), labels = age_groups), sex = recode_factor(sex, `1` = "female", `2` = "male"))
+```
+
+Transform Don't knows (0) on candidate rating variables to NAs
+```{r, message=FALSE}
+resp_data <- resp_data %>%
+  mutate_at(vars(Arthaud:Lassalle), ~na_if(., 0))
+```
+
+Drop the 149 respondents which did not indicate whom they voted for in round 1; they are of no use for poststratification and raking. 
+```{r, message=FALSE}
+resp_data <- resp_data %>%
+  filter(!is.na(choice))
+```
+
+### Specify a survey design object
+```{r, message=FALSE}
+multi_design <- svydesign(id = ~id + resp_id, probs = ~first_stage + second_stage, data = resp_data)
+```
+
+1. Estimate the shares of voters in the 14 poststratification cells defined by gender and age group using the `multi_design`object. (hint: use `svytable()` from the survey package to estimate totals; you can either set the argument `Ntotals` to 1 or use the function `proportions()` to get the shares). 
+
+```{r, message=FALSE}
+proportions(svytable(~age + sex, design = multi_design))
+```
+
+2. Compare the results to the population figures above. Which groups are overrepresented in our survey, which are underrepresented?
+
+```{r, message=FALSE}
+proportions(age_sex_totals)
+```
+
+* We could also subtract the two tables to have a more direct comparison
+```{r, message=FALSE}
+proportions(svytable(~age + sex, design = multi_design)) - proportions(age_sex_totals)
+```
+* Generally, younger age groups tended to be overrepresented relative to older groups, a tendency that is slightly more pronounced among female voters.
+
+
+3. Poststratify the sample by age and gender (hint: you need to get rid of the NAs on the `age` and `sex`variables first, then specify the `multi_design` object again, then poststratify.).
+
+```{r, message=FALSE}
+resp_data <- resp_data %>%
+  filter(complete.cases(age,sex))
+
+multi_design <- svydesign(id = ~id + resp_id, probs = ~first_stage + second_stage, data = resp_data)
+
+post_design2 <- postStratify(design = multi_design, strata = ~age+sex, population = age_sex_totals)  
+```
+
+4. Now use the poststratified design to estimate the first-round vote shares. 
+```{r, message=FALSE}
+svymean(~choice, post_design2) - svymean(~choice, multi_design)
+```
+
+5. Compare this with the official results and our initial estimates using the `multi_design`object. Did poststratifying by age and sex improve our estimates?
+
+### Official results (using the `cand_totals` data frame from last week's tutorial)
+```{r, message=FALSE}
+cand_totals <- data.frame(choice = c("Arthaud","Poutou","Melenchon","Hamon","Macron","Fillon","Dupont-Aignon","Le Pen","Cheminade","Asselineau","Lassalle"), totals = c(232384,394505,7059951,2291288,8656346,7212995,1695000,7678491,65586,332547,435301))
+
+cand_totals <- cand_totals %>%
+  mutate(shares = totals/sum(totals))
+
+cand_totals
+```
+* Poststratification by age and sex did reduce the vote share Mélenchon by 2 pp, and did increase the vote share for Fillon by 3 pp, but no for Le Pen (just the opposite!).
+
+6. Poststratification might fail either because the covariates are weakly linked to survey participation or the survey variable of interest. Are there any age and / or gender differences in first-round candidate choice? Use the `svytable()` function and the `multi_design` to look at preferences by age group and gender separately.
+
+```{r, message=FALSE}
+proportions(svytable(~choice+sex, design=multi_design),2)
+proportions(svytable(~choice+age, design=multi_design),2)
+```
+
+* Steep (and opposite) age gradients in voting for Mélenchon and Fillon, not so much for other candidates. Gender patterns less clear. Clearly though, Le Pen is underestimated across gender and age. Selection was not at random conditional on age and gender.  
