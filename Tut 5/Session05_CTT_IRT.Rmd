@@ -1,0 +1,326 @@
+---
+title: "Session 05 - Survey Measurement: CTT and IRT"
+author: "ISM2425"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Goals of today's session
+* Learn to know the German General Social Survey (Allbus) 2018
+* Apply and interpret CTT and IRT methods and models
+
+
+## Packages
+```{r, message = F}
+pacman::p_load(haven, tidyverse, psych, mokken, mudfold, ltm, eRm)
+```
+* eRm: extended Rasch modelling; particularly nice functions to plot model results
+* ltm: several functions for latent trait modelling both in the IRT and the CTT tradition; overlaps with eRm  
+* mokken: functions to develop and evaluate Mokken scales
+* mudfold: contains functions for multiple unidimensional unfolding
+* psych: a general purpose toolbox developed for personality, psychometric theory and experimental psychology
+
+
+## Data
+We will use data from the German General Social Survey (Allbus) 2008. Allbus is a biennial survey that has been conducted since 1980. The target population is the adult residential population. Until 1990, it had been the voting-eligible population. The sample size is 2,000-3,000. Interviews are conducted face-to-face. Up until 1998, the Allbus used the ADM multistage sampling design we discussed during the lecture (regional stratification East-West, PPS-sampling of electoral wards, selection of HHs using a random-route procedure, selection of persons within HH using the Kish grid). Since 2000, municipalities are used as PSUs and persons are selected from local population registries. The Eastern German population is still oversampled. Other than that, the sample is self-weighted. For the time being, we will ignore the sampling design. Weighting and suitable variance estimation is difficult with the measurement methods we will use. Also, we will ignore, not impute, missing values.
+
+First, let's import the data:
+
+```{r, message = F}
+setwd("C:/Users/peter/Nextcloud/LEHRE/ISM2324/Tutorial")
+df_allbus <- read_dta("ZA5272_v1-0-0.dta")
+```
+
+We will use three item batteries to demonstrate the calculation of Cronbach's alpha and homogeneity coefficients for cumulative and unfolding scales.
+
+
+### Evaluations of social inequalities
+For Cronbach's alpha, we will use a battery that asks respondents to evaluate social inequality. The assumption is that all the three items measure the same underlying construct.
+
+Here are the questions and coding instructions:
+
+:::
+Here is a card with various views on what social differences in Germany are really like and how things should be.
+
+Please go through the statements one by one and tell me whether you …
+
+completely agree,
+tend to agree
+tend to disagree, or
+completely disagree
+
+INT.: Please display card 25.
+
+[im19] Only when differences in income and in social standing are large enough,
+is there an incentive for individual achievement.
+
+[im20] Differences in status between people are acceptable because they
+basically reflect what people have made of the opportunities they have
+had.
+
+[im21] On the whole, I consider the social differences in our country just.
+
+1 Completely agree
+2 Tend to agree
+3 Tend to disagree
+4 Completely disagree
+-8 Don’t know
+-9 No answer
+:::
+
+
+Let's extract and rename the three items, and recode -8 and -9 to NA:
+
+```{r, message = F}
+df_ineq <- df_allbus %>%
+  mutate(
+    incent = ifelse(im19 %in% c(-6, -8, -9), NA, im19),
+    accept = ifelse(im20 %in% c(-6, -8, -9), NA, im20),
+    just = ifelse(im21 %in% c(-6, -8, -9), NA, im21)
+  ) %>%
+  dplyr::select(incent, accept, just)
+View(df_ineq)
+```
+
+### Political knowledge
+To demonstrate cumulative scaling procedures such as Mokken and Rasch, we will use parts of an extensive quiz containing 21 items. We will only use 9 questions which ask the respondents to designate politicians to their parties. Item difficulties clearly vary with the prominence of the politicians. 
+
+:::
+To which political parties do the following politicians belong?
+
+[pk01] Heiko Maas
+[pk02] Christian Lindner
+[pk03] Peter Altmaier
+[pk04] Katrin Göring-Eckhardt
+[pk05] Angela Merkel
+[pk06] Alice Weidel
+[pk07] Ursula von der Leyen
+[pk08] Dietmar Bartsch
+[pk09] Andrea Nahles
+
+-8 Don't know
+1 CDU bzw. CSU
+2 Die Grünen
+3 Die Linke
+4 FDP
+5 SPD
+6 AfD
+
+:::
+
+Let's extract and dichotomize the items according to whether the responses are correct or incorrect (missing values are coded 0, evidently): 
+
+```{r, message = F}
+df_know <- df_allbus %>%
+  mutate(maas = ifelse(pk01 == 5, 1, 0),
+         lindner = ifelse(pk02 == 4, 1, 0),
+         altmaier = ifelse(pk03 == 1, 1, 0),
+         goering = ifelse(pk04 == 2, 1, 0),
+         merkel = ifelse(pk05 == 1, 1, 0),
+         weidel = ifelse(pk06 == 6, 1, 0),
+         leyen = ifelse(pk07 == 1, 1, 0),
+         bartsch = ifelse(pk08 == 3, 1, 0),
+         nahles = ifelse(pk09 == 5, 1, 0)) %>%
+  dplyr::select(maas:nahles)
+```
+
+### Voting probabilities for parties
+To demonstrate unfolding, we will use a battery of questions which ask the respondents to indicate their probabilities to vote for any of the major 6 parties.
+
+:::
+There are a large number of political parties in Germany.
+Each one of them would like to have your vote at elections.
+Please tell me, for each of the following parties, how likely it is that you would e v e r vote for this party. Please use this scale.
+* 1 on the scale means that it is very unlikely for you,
+* 10 on the scale means that it is very likely for you.
+You can differentiate your answers using the numbers in between.
+INT: Please read out the party names. Additionally, display card 44.
+If respondent is not eligible to vote, please ask her/him to answer as if s/he
+were eligible to vote.
+What about..
+[pv19] The Christian Democratic Union/Christian Social Union <”CDU/CSU”>
+[pv20] The Social Democratic Party <”SPD“>
+[pv21] The Free Democratic Party <”FDP“>
+[pv22] Alliance 90/The Greens <“Bündnis 90 / Die Grünen“>
+[pv23] The Left <“Die Linke“>
+[pv24] Alternative for Germany <”AfD“>
+
+1 Very unlikely
+...
+10 Very likely
+
+:::
+
+Let's extract and dichotomize the items. We assume that a value of 6 or higher indicates a high probability. -8 and -9 are missing (I'm sure there are more efficient ways to do this): 
+
+```{r, message = F}
+df_party <- df_allbus %>%
+  mutate(
+    cdu = case_when(
+      pv19 %in% 1:5 ~ 0,
+      pv19 %in% 6:10 ~ 1,
+      pv19 %in% c(-6, -8, -9) ~ NA_real_,
+      TRUE ~ pv19
+    ),
+    spd = case_when(
+      pv20 %in% 1:5 ~ 0,
+      pv20 %in% 6:10 ~ 1,
+      pv20 %in% c(-6, -8, -9) ~ NA_real_,
+      TRUE ~ pv20
+    ),
+    fdp = case_when(
+      pv21 %in% 1:5 ~ 0,
+      pv21 %in% 6:10 ~ 1,
+      pv21 %in% c(-6, -8, -9) ~ NA_real_,
+      TRUE ~ pv21
+    ),
+    greens = case_when(
+      pv22 %in% 1:5 ~ 0,
+      pv22 %in% 6:10 ~ 1,
+      pv22 %in% c(-6, -8, -9) ~ NA_real_,
+      TRUE ~ pv22
+    ),
+    left = case_when(
+      pv23 %in% 1:5 ~ 0,
+      pv23 %in% 6:10 ~ 1,
+      pv23 %in% c(-6, -8, -9) ~ NA_real_,
+      TRUE ~ pv23
+    ),
+    afd = case_when(
+      pv24 %in% 1:5 ~ 0,
+      pv24 %in% 6:10 ~ 1,
+      pv24 %in% c(-6, -8, -9) ~ NA_real_,
+      TRUE ~ pv24
+    )
+  ) %>%
+  dplyr::select(cdu, spd, fdp, greens, left, afd)
+
+View(df_party)
+```
+
+## Cronbach's alpha
+In this section, we will do some old-school reliability testing within the CTT paradigm.
+
+Let's first use the `descript()` function from the ltm package which provides some basic descriptives and alpha:
+
+```{r, message = F}
+descript(df_ineq)
+```
+
+Now let's use the `alpha` function from the psych package, which provides additional results:
+
+```{r, message = F}
+alpha(df_ineq, na.rm = TRUE)
+```
+There is a lot of output, indeed, and we didn't discuss most of it in the lecture. I asked perplexity.ai to help me interpret it:
+
+:::
+Raw Alpha and Standardized Alpha:
+The raw_alpha and std.alpha values represent the Cronbach's alpha coefficients.
+Cronbach's alpha is a measure of internal consistency, with values closer to 1 indicating higher consistency. In this case, both values are 0.72, suggesting a moderate level of internal consistency for the scale.
+
+G6(smc):
+This is a measure of the general factor saturation of the scale.
+A value of 0.64 indicates the degree to which the scale is dominated by a general factor.
+
+Average Inter-Item Correlation (average_r):
+This value (0.46) indicates the average correlation between the items in the scale.
+Higher values suggest that the items are more closely related to each other.
+
+S/N:
+This is the signal-to-noise ratio, which is a measure of the strength of the general factor relative to the amount of unique variance in the items.
+A value of 2.6 suggests a reasonable level of signal relative to noise.
+
+Item Statistics:
+The raw.r and std.r values represent the item-total correlations, which indicate how well each item correlates with the total score on the scale.
+Higher values (e.g., 0.78, 0.85) suggest that the items are well-correlated with the total score.
+
+Non-Missing Response Frequency:
+These values indicate the frequency of different responses for each item.
+They provide insights into the distribution of responses for each item.
+
+The 95% confidence boundaries provide the confidence interval for the Cronbach's alpha coefficient.
+:::
+
+To exercise, you may do the same with the item batteries in df_know and df_party! 
+
+
+
+## Cumulative scaling: Mokken and Rasch
+Now we switch to a modern IRT framework. Our point of departure is the Mokken scale. Is there a single underlying dimension (political knowledge) that drives the response behavior? What are the easiest, what are the most difficult items? How homogeneous (that is, in accordance with a Guttman scale) are the item responses? 
+
+Let's first use the `descript()`function from above. With binary items, descript objects can be plotted to yield empirical item characteristic curves (ICCs): 
+
+```{r, message = F}
+descript(df_know)
+plot(descript(df_know))
+```
+
+Even though the aesthetics do not match those of `ggplot()`, the plot is very informative. Recall the (double) monotonicity assumption underlying Mokken scaling. This can easily be checked. The only violation appears to be with item 6 (weidel), but this might be due to chance. For more formal tests, see the `check.monotonicity()` and `check.restscore()` functions from the mokken package. One can also use this plot to eyeball whether ICCs could be reasonably represented with logistic curves (that is, the Rasch model).
+
+The functions from the mokken package require numerical variables. To coerce logical values to numeric (0-1), just multiply data frame by 1.
+
+```{r, message = F}
+df_know_num <- df_know*1
+```
+
+No let's calculate Loevinger's H and related statistics:
+
+
+```{r, message = F}
+coefH(df_know_num)
+```
+
+The output provides H_{jk} values for item tuples, H_j values for items, and H values for the overall scale. The item with the weakest homogeneity is weidel.
+
+Can you figure why (recall the data was collected in 2018)?
+
+Finally, let's try to fit a Rasch model to the data. We'll use the `rasch`function from the ltm package. The probability of a correct response is modeled as a logistic function of the difference between respondent ability alpha (sorry for the terminological confusion!) and item difficulty delta.
+
+```{r, message = F}
+rasch_know <- rasch(df_know_num)
+summary(rasch_know)
+plot(rasch_know)
+```
+
+Note that the function estimated an additional discrimination parameter (`Dscrmn`), which makes the functional form somewhat more flexible. To estimate the orginal Rasch model, we could constrain this parameter to be 1 by specifying the respective argument within the function call: `constraint = cbind(ncol(df_know_num) + 1, 1)`.   
+
+A nice person-item mapping function is included in the eRm package (which offers a whole range of extensions to the original Rasch model):
+
+```{r, message = F}
+rm_know <- RM(df_know_num)
+plotPImap(rm_know, sorted=TRUE)
+```
+
+
+## Unfolding scales
+Now let's see whether there is a single underlying ideological dimension (left-right?) that drives the respondents' (dichotomized) probabilities to vote for the parties. We use the `mudfold`function from the eponymous package.
+
+We first transform the logical values in df_party into numeric:
+
+```{r, message = F}
+df_party_num <- df_party*1
+```
+
+Apparently, the mudfold function has problems with all-zero rows (we know that these respondents are extreme, but we don't know at which side of the ideological spectrum). We therefore drop these rows. We also drop the rows with NAs to speed up computation (even though the function can use `mice`to impute missing data).
+
+```{r, message = F}
+df_party_noNA <- df_party_num %>%
+  filter(rowSums(across(everything(), ~. == 0, .names = "check_zero")) != ncol(df_party_num)
+         ) %>%
+  drop_na()
+```
+
+
+```{r, message = F}
+mud_party <- mudfold(df_party_noNA)
+diagnostics(mud_party)
+plot(mud_party)
+```
+
+Note: For some reason, the SPD is not included. This doesn't seem to be due to the lack of scalability of the voting probabilities for SPD (I have played around the minimum H-value through the `lambda1 argument, but to no avail).`
+
+Packages GGUM and mirt offer implementations of some parametric unfolding models. Also, there are packages such as oc and wnominate which implement independent developments of ideal-point models in political science (see Poole and Rosenthal 1997).

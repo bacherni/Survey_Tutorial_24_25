@@ -1,0 +1,38 @@
+---
+title: 'Homework Assignment III: Survey measurement'
+author: "Enter your group name (Niklas, Jonas)"
+date: "Enter submission date"
+output:
+  pdf_document: default
+html_document: default
+subtitle: Enter your student ID
+---
+  
+Please write up your answers, code, and results using this Markdown file as a template. Save the file as `HA3_yourstudentID.Rmd`. When everything works properly, knit the final version to html format and submit both Rmd and html files to the submission folder Homework 3 which you can find on ILIAS. 
+
+The deadline for submission is 31.03.2025, 23:55.
+
+You can earn one credit per bullet point. Grading key: 6 credits $\rightarrow$ grade 1, 5 credits $\rightarrow 2$, 4 credits $\rightarrow 3$, 3 credits $\rightarrow 4$, 2 or 1 credits $\rightarrow 5$. You will get one extra credit for correct Markdown syntax, package, and data handling (bullet 0.). 
+
+In the tutorial session on survey measurement, we already used the 2018 Allbus survey. If you haven't done so yet, register at GESIS and download the data (in Stata format; ZA5272_v1-0-0.dta) and questionnaire (ZA5272_q.pdf).
+
+0. Preparations: load the necessary packages (`tidyverse`, `haven`, `psych`, `mokken`, `mudfold`, `ltm`, `eRm`, depending on which method or model you will use), set the working directory, and import the data (`ZA5272_v1-0-0.dta`). 
+
+1. Go through the questionnaire and find an item battery that you think measures a (one-dimensional) latent construct. Your task is to test the measurement instrument. Define that construct and tell the reader why it is relevant. Display the questions and response categories.
+
+2. Explain what analysis you intend to do (e.g., a reliability analysis using Cronbach's alpha, a Mokken, Rasch, or MUDFOLD analysis) and why. What type of data doe you need (dichotomous or ordinal)? 
+
+3. Recode and extract the items into a separate data frame. Don't forget to recode or delete the missing values.
+
+4. Run your analyses.
+
+5. Interpret the results.
+
+6. Conclude with a summary judgment about whether the instrument properly measures the underlying construct.  
+
+
+
+
+
+
+
