@@ -28,7 +28,7 @@ You can earn one credit per bullet point. The maximum number of credits is 6. Gr
 ### Load packages, set working directory
 ```{r, message=FALSE}
 pacman::p_load(tidyverse,survey)
-setwd("C:/Users/peter/Nextcloud/LEHRE/ISM2324/Tutorial")
+#setwd("C:/Users/peter/Nextcloud/LEHRE/ISM2324/Tutorial")
 ```
 
 ### Load and data
@@ -95,7 +95,7 @@ post_design2 <- postStratify(design = multi_design, strata = ~age+sex, populatio
 
 4. Now use the poststratified design to estimate the first-round vote shares. 
 ```{r, message=FALSE}
-svymean(~choice, post_design2) - svymean(~choice, multi_design)
+svymean(~choice, post_design2)
 ```
 
 5. Compare this with the official results and our initial estimates using the `multi_design`object. Did poststratifying by age and sex improve our estimates?

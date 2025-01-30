@@ -30,7 +30,6 @@ We will use data from the German General Social Survey (Allbus) 2008. Allbus is 
 First, let's import the data:
 
 ```{r, message = F}
-setwd("C:/Users/peter/Nextcloud/LEHRE/ISM2324/Tutorial")
 df_allbus <- read_dta("ZA5272_v1-0-0.dta")
 ```
 
