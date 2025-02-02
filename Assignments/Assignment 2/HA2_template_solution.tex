@@ -1,0 +1,523 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+\usepackage{bookmark}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  pdftitle={Homework Assignment II: Survey adjustments},
+  pdfauthor={Enter your group name (Peter, Robin, Theresa)},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\title{Homework Assignment II: Survey adjustments}
+\usepackage{etoolbox}
+\makeatletter
+\providecommand{\subtitle}[1]{% add subtitle to \maketitle
+  \apptocmd{\@title}{\par {\large #1 \par}}{}{}
+}
+\makeatother
+\subtitle{Enter your student ID}
+\author{Enter your group name (Peter, Robin, Theresa)}
+\date{Enter submission date}
+
+\begin{document}
+\maketitle
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{knitr}\SpecialCharTok{::}\NormalTok{opts\_chunk}\SpecialCharTok{$}\FunctionTok{set}\NormalTok{(}\AttributeTok{echo =} \ConstantTok{TRUE}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Please write up your answers, code, and results using this Markdown file
+as a template. Save the file as \texttt{HA2\_yourstudentID.Rmd}. When
+everything works properly, knit the final version to html format and
+submit both Rmd and html files to the submission folder Homework 2 which
+you can find on ILIAS.
+
+The deadline for submission is 29.01.2024, 23:55.
+
+In our application using the \texttt{FPEsurvey} data, we observed that
+our sample underrepresented voters of Le Pen and other right-wing
+candidates, while it overrepresented Mélenchon voters. We poststratified
+candidate \texttt{choice} to actual first-round election results in
+order to predict the 2017 runoff between Macron and Le Pen.
+Poststratification dramatically improved our prediction of the runoff.
+Unfortunately, such powerful poststratification information is rarely
+available. More often than not, we have to make do with standard
+sociodemographic information. In this assignment, we will see how far we
+get when we poststratify by sociodemographics, particularly age and
+gender. The distribution of the first-round electorate by age group and
+gender is taken from the Enquête sur la participation électorale 2017,
+the equivalent to the Repräsentative Wahlstatistik in Germany (note:
+make sure that you have downloaded the data in
+\texttt{age\_sex\_totals.rds} to your working directory.):
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{age\_sex\_totals }\OtherTok{\textless{}{-}} \FunctionTok{readRDS}\NormalTok{(}\StringTok{"age\_sex\_totals.rds"}\NormalTok{)}
+\NormalTok{age\_sex\_totals}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##        sex
+## age      female    male
+##   18-24 1501616 1445647
+##   25-34 2347022 2052570
+##   35-44 2928444 2549121
+##   45-54 3356592 3090051
+##   55-64 3238400 3026732
+##   65-74 2886214 2492961
+##   >75   2413333 1756146
+\end{verbatim}
+
+Note that the total number of first-round voters here is lower than the
+official figures (35,084,850 versus 36,054,394). It is not fully clear
+to me where this discrepancy comes from. In any case, in what follows,
+we will look at proportions rather than totals.
+
+You can earn one credit per bullet point. The maximum number of credits
+is 6. Grading key: 6 credits \(\rightarrow\) grade 1, 5 credits
+\(\rightarrow 2\), 4 credits \(\rightarrow 3\), 3 credits
+\(\rightarrow 4\), 2 or 1 credits \(\rightarrow 5\). You will get one
+extra credit for correct Markdown syntax, package, and data handling
+(bullet 0.).
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{-1}
+\tightlist
+\item
+  Preparations: load necessary packages (\texttt{tidyverse},
+  \texttt{survey}), set working directory, load the data
+  (\texttt{FPEsurvey.rda}), clean the data as we did in the tutorial,
+  specify the \texttt{multi\_design} object.
+\end{enumerate}
+
+\subsubsection{Load packages, set working
+directory}\label{load-packages-set-working-directory}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{pacman}\SpecialCharTok{::}\FunctionTok{p\_load}\NormalTok{(tidyverse,survey)}
+\CommentTok{\#setwd("C:/Users/peter/Nextcloud/LEHRE/ISM2324/Tutorial")}
+\end{Highlighting}
+\end{Shaded}
+
+\subsubsection{Load and data}\label{load-and-data}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{load}\NormalTok{(}\StringTok{"FPEsurvey.rda"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\subsubsection{Data cleaning}\label{data-cleaning}
+
+Assign value labels / candidate names (check candidate order in
+questionnaire!), transform to factors:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{cand\_names }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"Arthaud"}\NormalTok{,}\StringTok{"Poutou"}\NormalTok{,}\StringTok{"Melenchon"}\NormalTok{,}\StringTok{"Hamon"}\NormalTok{,}\StringTok{"Macron"}\NormalTok{,}\StringTok{"Fillon"}\NormalTok{,}\StringTok{"Dupont{-}Aignon"}\NormalTok{,}\StringTok{"Le Pen"}\NormalTok{,}\StringTok{"Cheminade"}\NormalTok{,}\StringTok{"Asselineau"}\NormalTok{,}\StringTok{"Lassalle"}\NormalTok{)}
+
+\NormalTok{age\_groups }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"18{-}24"}\NormalTok{,}\StringTok{"25{-}34"}\NormalTok{,}\StringTok{"35{-}44"}\NormalTok{,}\StringTok{"45{-}54"}\NormalTok{,}\StringTok{"55{-}64"}\NormalTok{,}\StringTok{"65{-}74"}\NormalTok{,}\StringTok{"\textgreater{}75"}\NormalTok{)}
+
+\NormalTok{resp\_data }\OtherTok{\textless{}{-}}\NormalTok{ resp\_data }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{mutate}\NormalTok{(}\AttributeTok{choice =} \FunctionTok{factor}\NormalTok{(choice, }\AttributeTok{levels =} \FunctionTok{seq}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DecValTok{11}\NormalTok{,}\DecValTok{1}\NormalTok{), }\AttributeTok{labels =}\NormalTok{ cand\_names), }\AttributeTok{age =} \FunctionTok{factor}\NormalTok{(age, }\AttributeTok{levels =} \FunctionTok{seq}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DecValTok{7}\NormalTok{,}\DecValTok{1}\NormalTok{), }\AttributeTok{labels =}\NormalTok{ age\_groups), }\AttributeTok{sex =} \FunctionTok{recode\_factor}\NormalTok{(sex, }\StringTok{\textasciigrave{}}\AttributeTok{1}\StringTok{\textasciigrave{}} \OtherTok{=} \StringTok{"female"}\NormalTok{, }\StringTok{\textasciigrave{}}\AttributeTok{2}\StringTok{\textasciigrave{}} \OtherTok{=} \StringTok{"male"}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+Transform Don't knows (0) on candidate rating variables to NAs
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{resp\_data }\OtherTok{\textless{}{-}}\NormalTok{ resp\_data }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate\_at}\NormalTok{(}\FunctionTok{vars}\NormalTok{(Arthaud}\SpecialCharTok{:}\NormalTok{Lassalle), }\SpecialCharTok{\textasciitilde{}}\FunctionTok{na\_if}\NormalTok{(., }\DecValTok{0}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+Drop the 149 respondents which did not indicate whom they voted for in
+round 1; they are of no use for poststratification and raking.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{resp\_data }\OtherTok{\textless{}{-}}\NormalTok{ resp\_data }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{filter}\NormalTok{(}\SpecialCharTok{!}\FunctionTok{is.na}\NormalTok{(choice))}
+\end{Highlighting}
+\end{Shaded}
+
+\subsubsection{Specify a survey design
+object}\label{specify-a-survey-design-object}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{multi\_design }\OtherTok{\textless{}{-}} \FunctionTok{svydesign}\NormalTok{(}\AttributeTok{id =} \SpecialCharTok{\textasciitilde{}}\NormalTok{id }\SpecialCharTok{+}\NormalTok{ resp\_id, }\AttributeTok{probs =} \SpecialCharTok{\textasciitilde{}}\NormalTok{first\_stage }\SpecialCharTok{+}\NormalTok{ second\_stage, }\AttributeTok{data =}\NormalTok{ resp\_data)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Estimate the shares of voters in the 14 poststratification cells
+  defined by gender and age group using the
+  \texttt{multi\_design}object. (hint: use \texttt{svytable()} from the
+  survey package to estimate totals; you can either set the argument
+  \texttt{Ntotals} to 1 or use the function \texttt{proportions()} to
+  get the shares).
+\end{enumerate}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{proportions}\NormalTok{(}\FunctionTok{svytable}\NormalTok{(}\SpecialCharTok{\textasciitilde{}}\NormalTok{age }\SpecialCharTok{+}\NormalTok{ sex, }\AttributeTok{design =}\NormalTok{ multi\_design))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##        sex
+## age         female       male
+##   18-24 0.08533917 0.06491612
+##   25-34 0.10940919 0.08023341
+##   35-44 0.10649161 0.07804522
+##   45-54 0.10576222 0.08315098
+##   55-64 0.07950401 0.06637491
+##   65-74 0.06564551 0.04595186
+##   >75   0.01385850 0.01531729
+\end{verbatim}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{1}
+\tightlist
+\item
+  Compare the results to the population figures above. Which groups are
+  overrepresented in our survey, which are underrepresented?
+\end{enumerate}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{proportions}\NormalTok{(age\_sex\_totals)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##        sex
+## age         female       male
+##   18-24 0.04279957 0.04120432
+##   25-34 0.06689559 0.05850303
+##   35-44 0.08346747 0.07265589
+##   45-54 0.09567070 0.08807364
+##   55-64 0.09230195 0.08626892
+##   65-74 0.08226383 0.07105520
+##   >75   0.06878562 0.05005427
+\end{verbatim}
+
+\begin{itemize}
+\tightlist
+\item
+  We could also subtract the two tables to have a more direct comparison
+\end{itemize}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{proportions}\NormalTok{(}\FunctionTok{svytable}\NormalTok{(}\SpecialCharTok{\textasciitilde{}}\NormalTok{age }\SpecialCharTok{+}\NormalTok{ sex, }\AttributeTok{design =}\NormalTok{ multi\_design)) }\SpecialCharTok{{-}} \FunctionTok{proportions}\NormalTok{(age\_sex\_totals)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##        sex
+## age           female         male
+##   18-24  0.042539601  0.023711804
+##   25-34  0.042513600  0.021730372
+##   35-44  0.023024140  0.005389329
+##   45-54  0.010091513 -0.004922660
+##   55-64 -0.012797941 -0.019894008
+##   65-74 -0.016618313 -0.025103340
+##   >75   -0.054927118 -0.034736980
+\end{verbatim}
+
+\begin{itemize}
+\tightlist
+\item
+  Generally, younger age groups tended to be overrepresented relative to
+  older groups, a tendency that is slightly more pronounced among female
+  voters.
+\end{itemize}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{2}
+\tightlist
+\item
+  Poststratify the sample by age and gender (hint: you need to get rid
+  of the NAs on the \texttt{age} and \texttt{sex}variables first, then
+  specify the \texttt{multi\_design} object again, then poststratify.).
+\end{enumerate}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{resp\_data }\OtherTok{\textless{}{-}}\NormalTok{ resp\_data }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{filter}\NormalTok{(}\FunctionTok{complete.cases}\NormalTok{(age,sex))}
+
+\NormalTok{multi\_design }\OtherTok{\textless{}{-}} \FunctionTok{svydesign}\NormalTok{(}\AttributeTok{id =} \SpecialCharTok{\textasciitilde{}}\NormalTok{id }\SpecialCharTok{+}\NormalTok{ resp\_id, }\AttributeTok{probs =} \SpecialCharTok{\textasciitilde{}}\NormalTok{first\_stage }\SpecialCharTok{+}\NormalTok{ second\_stage, }\AttributeTok{data =}\NormalTok{ resp\_data)}
+
+\NormalTok{post\_design2 }\OtherTok{\textless{}{-}} \FunctionTok{postStratify}\NormalTok{(}\AttributeTok{design =}\NormalTok{ multi\_design, }\AttributeTok{strata =} \SpecialCharTok{\textasciitilde{}}\NormalTok{age}\SpecialCharTok{+}\NormalTok{sex, }\AttributeTok{population =}\NormalTok{ age\_sex\_totals)  }
+\end{Highlighting}
+\end{Shaded}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{3}
+\tightlist
+\item
+  Now use the poststratified design to estimate the first-round vote
+  shares.
+\end{enumerate}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{svymean}\NormalTok{(}\SpecialCharTok{\textasciitilde{}}\NormalTok{choice, post\_design2)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##                          mean     SE
+## choiceArthaud       0.0033040 0.0019
+## choicePoutou        0.0105521 0.0032
+## choiceMelenchon     0.2608375 0.0209
+## choiceHamon         0.0860839 0.0119
+## choiceMacron        0.2727511 0.0120
+## choiceFillon        0.1818040 0.0166
+## choiceDupont-Aignon 0.0393783 0.0061
+## choiceLe Pen        0.1100385 0.0146
+## choiceCheminade     0.0044516 0.0017
+## choiceAsselineau    0.0133325 0.0026
+## choiceLassalle      0.0174664 0.0050
+\end{verbatim}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{4}
+\tightlist
+\item
+  Compare this with the official results and our initial estimates using
+  the \texttt{multi\_design}object. Did poststratifying by age and sex
+  improve our estimates?
+\end{enumerate}
+
+\subsubsection{\texorpdfstring{Official results (using the
+\texttt{cand\_totals} data frame from last week's
+tutorial)}{Official results (using the cand\_totals data frame from last week's tutorial)}}\label{official-results-using-the-cand_totals-data-frame-from-last-weeks-tutorial}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{cand\_totals }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(}\AttributeTok{choice =} \FunctionTok{c}\NormalTok{(}\StringTok{"Arthaud"}\NormalTok{,}\StringTok{"Poutou"}\NormalTok{,}\StringTok{"Melenchon"}\NormalTok{,}\StringTok{"Hamon"}\NormalTok{,}\StringTok{"Macron"}\NormalTok{,}\StringTok{"Fillon"}\NormalTok{,}\StringTok{"Dupont{-}Aignon"}\NormalTok{,}\StringTok{"Le Pen"}\NormalTok{,}\StringTok{"Cheminade"}\NormalTok{,}\StringTok{"Asselineau"}\NormalTok{,}\StringTok{"Lassalle"}\NormalTok{), }\AttributeTok{totals =} \FunctionTok{c}\NormalTok{(}\DecValTok{232384}\NormalTok{,}\DecValTok{394505}\NormalTok{,}\DecValTok{7059951}\NormalTok{,}\DecValTok{2291288}\NormalTok{,}\DecValTok{8656346}\NormalTok{,}\DecValTok{7212995}\NormalTok{,}\DecValTok{1695000}\NormalTok{,}\DecValTok{7678491}\NormalTok{,}\DecValTok{65586}\NormalTok{,}\DecValTok{332547}\NormalTok{,}\DecValTok{435301}\NormalTok{))}
+
+\NormalTok{cand\_totals }\OtherTok{\textless{}{-}}\NormalTok{ cand\_totals }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{shares =}\NormalTok{ totals}\SpecialCharTok{/}\FunctionTok{sum}\NormalTok{(totals))}
+
+\NormalTok{cand\_totals}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##           choice  totals      shares
+## 1        Arthaud  232384 0.006445373
+## 2         Poutou  394505 0.010941940
+## 3      Melenchon 7059951 0.195813886
+## 4          Hamon 2291288 0.063550867
+## 5         Macron 8656346 0.240091291
+## 6         Fillon 7212995 0.200058695
+## 7  Dupont-Aignon 1695000 0.047012300
+## 8         Le Pen 7678491 0.212969631
+## 9      Cheminade   65586 0.001819085
+## 10    Asselineau  332547 0.009223481
+## 11      Lassalle  435301 0.012073452
+\end{verbatim}
+
+\begin{itemize}
+\tightlist
+\item
+  Poststratification by age and sex did reduce the vote share Mélenchon
+  by 2 pp, and did increase the vote share for Fillon by 3 pp, but no
+  for Le Pen (just the opposite!).
+\end{itemize}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{5}
+\tightlist
+\item
+  Poststratification might fail either because the covariates are weakly
+  linked to survey participation or the survey variable of interest. Are
+  there any age and / or gender differences in first-round candidate
+  choice? Use the \texttt{svytable()} function and the
+  \texttt{multi\_design} to look at preferences by age group and gender
+  separately.
+\end{enumerate}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{proportions}\NormalTok{(}\FunctionTok{svytable}\NormalTok{(}\SpecialCharTok{\textasciitilde{}}\NormalTok{choice}\SpecialCharTok{+}\NormalTok{sex, }\AttributeTok{design=}\NormalTok{multi\_design),}\DecValTok{2}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##                sex
+## choice               female        male
+##   Arthaud       0.005154639 0.001680672
+##   Poutou        0.009020619 0.013445378
+##   Melenchon     0.264175258 0.302521009
+##   Hamon         0.103092784 0.067226891
+##   Macron        0.270618557 0.272268907
+##   Fillon        0.157216495 0.144537815
+##   Dupont-Aignon 0.046391753 0.031932773
+##   Le Pen        0.118556701 0.122689076
+##   Cheminade     0.002577320 0.006722689
+##   Asselineau    0.009020619 0.020168067
+##   Lassalle      0.014175258 0.016806723
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{proportions}\NormalTok{(}\FunctionTok{svytable}\NormalTok{(}\SpecialCharTok{\textasciitilde{}}\NormalTok{choice}\SpecialCharTok{+}\NormalTok{age, }\AttributeTok{design=}\NormalTok{multi\_design),}\DecValTok{2}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##                age
+## choice                18-24       25-34       35-44       45-54       55-64
+##   Arthaud       0.004854369 0.000000000 0.007905138 0.000000000 0.010000000
+##   Poutou        0.009708738 0.007692308 0.011857707 0.011583012 0.020000000
+##   Melenchon     0.383495146 0.365384616 0.249011858 0.243243243 0.270000000
+##   Hamon         0.092233010 0.080769231 0.098814229 0.088803089 0.100000000
+##   Macron        0.223300971 0.242307692 0.324110672 0.254826255 0.310000000
+##   Fillon        0.082524272 0.080769231 0.154150198 0.154440154 0.160000000
+##   Dupont-Aignon 0.024271845 0.050000000 0.035573123 0.057915058 0.015000000
+##   Le Pen        0.155339806 0.138461538 0.098814229 0.138996139 0.080000000
+##   Cheminade     0.000000000 0.007692308 0.003952569 0.000000000 0.010000000
+##   Asselineau    0.009708738 0.015384615 0.003952569 0.027027027 0.020000000
+##   Lassalle      0.014563107 0.011538462 0.011857707 0.023166023 0.005000000
+##                age
+## choice                65-74         >75
+##   Arthaud       0.000000000 0.000000000
+##   Poutou        0.006535948 0.000000000
+##   Melenchon     0.143790850 0.225000000
+##   Hamon         0.052287582 0.100000000
+##   Macron        0.287581700 0.225000000
+##   Fillon        0.294117647 0.350000000
+##   Dupont-Aignon 0.058823529 0.025000000
+##   Le Pen        0.117647059 0.050000000
+##   Cheminade     0.006535948 0.000000000
+##   Asselineau    0.006535948 0.000000000
+##   Lassalle      0.026143791 0.025000000
+\end{verbatim}
+
+\begin{itemize}
+\tightlist
+\item
+  Steep (and opposite) age gradients in voting for Mélenchon and Fillon,
+  not so much for other candidates. Gender patterns less clear. Clearly
+  though, Le Pen is underestimated across gender and age. Selection was
+  not at random conditional on age and gender.
+\end{itemize}
+
+\end{document}

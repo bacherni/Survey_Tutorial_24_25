@@ -3,10 +3,13 @@ title: 'Homework Assignment II: Survey adjustments'
 author: "Enter your group name (Peter, Robin, Theresa)"
 date: "Enter submission date"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 subtitle: Enter your student ID
 ---
+```{r}
+knitr::opts_chunk$set(echo = TRUE)
+```
 
 Please write up your answers, code, and results using this Markdown file as a template. Save the file as `HA2_yourstudentID.Rmd`. When everything works properly, knit the final version to html format and submit both Rmd and html files to the submission folder Homework 2 which you can find on ILIAS. 
 
